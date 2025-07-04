@@ -25,8 +25,6 @@
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
-      "rollup": "^3.29.4",
-
     "@eslint/js": "^9.15.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -38,7 +36,8 @@
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.12.0",
     "postcss": "^8.4.49",
+    "rollup": "^3.29.4",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.1"
+    "vite": "^7.0.2"
   }
 }
