@@ -10,10 +10,8 @@ import AdminText from "./AdminText";
 import React from 'react'
 import Video from "./Video"
 import { useLocation, useNavigate } from 'react-router-dom';
-
 let socket;
 let dummy;
-
 const Player1 = () => {
   function getFormattedTime() {
     const now = new Date();
@@ -52,7 +50,6 @@ const Player1 = () => {
   });
 
   const messageRef = useRef(null);
-  const videoRef = useRef(null);
   const syncTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -129,17 +126,7 @@ const Player1 = () => {
     }, 1500);
   };
 
-  useEffect(() => {
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      window.onYouTubeIframeAPIReady = () => {
-        console.log('YouTube API loaded');
-      };
-    }
-  }, []);
+
   useEffect(() => {
     socket = io(backendURL);
     socket.emit('join', { name: userData.name, room: propValue }, (error) => {
@@ -169,8 +156,10 @@ const Player1 = () => {
     });
     socket.on('loadVideo', ({ videoId, startTime }) => {
       console.log('Received loadVideo event:', { videoId, startTime });
+       
       handleSocketSync('loadVideo', { videoId, startTime }, ({ videoId, startTime }) => {
         ytPlayer.loadVideoById(videoId, startTime || 0);
+        
         toast.success('New video loaded by another user', { icon: '🎵' });
       });
     });
@@ -222,7 +211,7 @@ const Player1 = () => {
   }, [isPlayerReady, ytPlayer]);
 
   const handleSearch = async (e) => {
-    if (e) e.preventDefault();
+  if (e) e.preventDefault();
     setLoading(true);
     const searchTerm = chatSong;
     if (!searchTerm) {
@@ -231,7 +220,7 @@ const Player1 = () => {
     }
     try {
       setError(null);
-      let API_KEYS = ["AIzaSyCrpqxXC2mytV4Pkukt-7zRFBYxo4Lgjbo"];
+      let API_KEYS = ["AIzaSyAhgUULw44lpuNzdxRT-2vZGHpYRSDxIh0"]
       const response = await axios.get(
         `https://www.googleapis.com/youtube/v3/search`,
         {
@@ -319,43 +308,6 @@ const Player1 = () => {
     }
   }, [chatSong]);
 
-  useEffect(() => {
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      window.onYouTubeIframeAPIReady = () => {
-        const player = new window.YT.Player("player", {
-          height: "360",
-          width: "640",
-          playerVars: {
-            controls: 1,
-            rel: 0,
-            modestbranding: 1,
-            origin: window.location.origin,
-          },
-          events: {
-            onReady: onPlayerReady,
-            onStateChange: onPlayerStateChange,
-          },
-        });
-      };
-    }
-  }, []);
-
-  useEffect(() => {
-    const timeInterval = setInterval(() => {
-      if (ytPlayer && !ignorePlayerEvents) {
-        setCurrentTime(ytPlayer.getCurrentTime());
-        if (ytPlayer.getDuration) {
-          setDuration(ytPlayer.getDuration());
-        }
-      }
-    }, 100);
-
-    return () => clearInterval(timeInterval);
-  }, [ytPlayer, ignorePlayerEvents]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -405,7 +357,6 @@ const Player1 = () => {
             </div>
           </div>
         </div>
-
         <div className="max-w-7xl mx-auto p-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
@@ -421,16 +372,15 @@ const Player1 = () => {
                         videos={videos}
                         onPlayerReady={onPlayerReady}
                         onPlayerStateChange={onPlayerStateChange}
+                        chatSong = {chatSong}
                       />
                     </div>
-
                     <div className="space-y-2">
                       <h3 className="text-xl font-semibold text-white">
                         {videos[0]?.snippet?.title}
                       </h3>
                       <p className="text-gray-400">{videos[0]?.snippet?.channelTitle}</p>
                     </div>
-
                     <div className="bg-black/40 rounded-xl p-4 space-y-3">
                       <div className="flex items-center space-x-4">
                         <button
@@ -439,7 +389,6 @@ const Player1 = () => {
                         >
                           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
                         </button>
-                        
                         <button
                           onClick={handleSync}
                           className="bg-blue-600 hover:bg-blue-700 rounded-full p-3 transition-all duration-200 transform hover:scale-105"
